@@ -113,6 +113,7 @@ const updateBook = async (req, res) => {
 
         // capture previous status for comparison
         const prevStatus = book.availabilityStatus;
+        logger.info(`Previous status: ${prevStatus}`);
 
         // allow partial updates; validate publishedYear & isbn uniqueness if changed
         if (req.body.isbn && req.body.isbn !== book.isbn) {
@@ -132,6 +133,7 @@ const updateBook = async (req, res) => {
         if (prevStatus === 'Borrowed' && book.availabilityStatus === 'Available') {
             // enqueue job (non-blocking)
             await queue.add('bookAvailable', { bookId: book.id, title: book.title });
+            logger.info(`Book available job enqueued: ${book.id}`);
             // respond quickly without waiting for notifications to complete
         }
 
